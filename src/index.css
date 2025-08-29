@@ -17,35 +17,35 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    /* Grassroot green palette - warm and approachable */
-    --primary: 142 76% 36%;
+    /* Modern neutral palette - clean and minimal */
+    --primary: 220 70% 50%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 142 65% 45%;
+    --primary-glow: 220 60% 60%;
 
-    --secondary: 145 25% 95%;
-    --secondary-foreground: 142 76% 36%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 9% 46%;
 
-    --muted: 145 25% 95%;
+    --muted: 220 14% 96%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 47 100% 88%;
-    --accent-foreground: 142 76% 36%;
+    --accent: 220 14% 96%;
+    --accent-foreground: 220 9% 15%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 145 25% 90%;
-    --input: 145 25% 90%;
-    --ring: 142 76% 36%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 220 70% 50%;
 
-    /* Custom gradients for warmth */
-    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
-    --gradient-warm: linear-gradient(135deg, hsl(47 100% 95%), hsl(145 25% 98%));
-    --gradient-soft: linear-gradient(180deg, hsl(0 0% 100%), hsl(145 25% 98%));
+    /* Modern minimal gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(220 9% 15%), hsl(220 9% 25%));
+    --gradient-warm: linear-gradient(135deg, hsl(0 0% 98%), hsl(220 14% 98%));
+    --gradient-soft: linear-gradient(180deg, hsl(0 0% 100%), hsl(220 14% 98%));
 
-    /* Shadows for depth */
-    --shadow-warm: 0 10px 30px -10px hsl(var(--primary) / 0.2);
-    --shadow-glow: 0 0 40px hsl(var(--primary-glow) / 0.3);
+    /* Subtle modern shadows */
+    --shadow-warm: 0 8px 25px -8px hsl(220 9% 15% / 0.15);
+    --shadow-glow: 0 0 30px hsl(220 70% 50% / 0.15);
 
     --radius: 0.5rem;
 
