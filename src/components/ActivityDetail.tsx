@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useClubSettings } from '@/hooks/useClubSettings';
 
 interface ActivityDetailProps {
   activity?: {
@@ -68,13 +69,21 @@ const ActivityDetail: React.FC<ActivityDetailProps> = ({
 }) => {
   const { title, type, date, time, location, opponent, notes, rsvp, clubColors, isAdmin } = activity;
 
+  // Fetch club settings for dynamic colors (fallback to activity.clubColors)
+  const clubId = "tigers-fc"; // In real app, this would come from activity data or context
+  const { data: clubSettings } = useClubSettings(clubId);
+  
+  // Use colors from club settings if available, otherwise fallback to activity prop or defaults
+  const primaryColor = clubSettings?.primary_color || clubColors?.primary || '#2563eb';
+  const secondaryColor = clubSettings?.secondary_color || clubColors?.secondary || '#1e40af';
+
   return (
     <div className="min-h-screen bg-gradient-soft">
       {/* Hero Section with Club Colors */}
       <div 
         className="relative h-56 overflow-hidden"
         style={{
-          background: `linear-gradient(135deg, ${clubColors?.primary || '#2563eb'}, ${clubColors?.secondary || '#1e40af'})`
+          background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-black/40" />
@@ -216,8 +225,8 @@ const ActivityDetail: React.FC<ActivityDetailProps> = ({
               variant={rsvp.userResponse === 'going' ? 'default' : 'outline'}
               className="flex-1 h-11 font-semibold transition-all duration-200 hover-scale"
               style={{
-                backgroundColor: rsvp.userResponse === 'going' ? clubColors?.primary : undefined,
-                borderColor: rsvp.userResponse !== 'going' ? clubColors?.primary : undefined
+                backgroundColor: rsvp.userResponse === 'going' ? primaryColor : undefined,
+                borderColor: rsvp.userResponse !== 'going' ? primaryColor : undefined
               }}
             >
               {rsvp.userResponse === 'going' ? '✅ Going' : 'RSVP Now'}
