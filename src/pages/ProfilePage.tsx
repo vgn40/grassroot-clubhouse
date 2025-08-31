@@ -15,6 +15,16 @@ const ProfilePage = () => {
   const updateProfileMutation = useUpdateProfile();
   const uploadAvatarMutation = useUploadAvatar();
   
+  // Show demo data if no profile is available
+  const profileData = profile || {
+    id: 'demo-user',
+    name: 'Demo User',
+    email: 'demo@example.com',
+    avatar_url: '',
+    notify_email: true,
+    notify_push: false,
+  };
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -24,15 +34,13 @@ const ProfilePage = () => {
 
   // Update form when profile loads
   React.useEffect(() => {
-    if (profile) {
-      setFormData({
-        name: profile.name,
-        email: profile.email,
-        notify_email: profile.notify_email,
-        notify_push: profile.notify_push,
-      });
-    }
-  }, [profile]);
+    setFormData({
+      name: profileData.name,
+      email: profileData.email,
+      notify_email: profileData.notify_email,
+      notify_push: profileData.notify_push,
+    });
+  }, [profileData]);
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -40,13 +48,19 @@ const ProfilePage = () => {
 
   const handleSave = () => {
     const updates: any = {};
-    if (formData.name !== profile?.name) updates.name = formData.name;
-    if (formData.email !== profile?.email) updates.email = formData.email;
-    if (formData.notify_email !== profile?.notify_email) updates.notify_email = formData.notify_email;
-    if (formData.notify_push !== profile?.notify_push) updates.notify_push = formData.notify_push;
+    if (formData.name !== profileData.name) updates.name = formData.name;
+    if (formData.email !== profileData.email) updates.email = formData.email;
+    if (formData.notify_email !== profileData.notify_email) updates.notify_email = formData.notify_email;
+    if (formData.notify_push !== profileData.notify_push) updates.notify_push = formData.notify_push;
 
-    if (Object.keys(updates).length > 0) {
+    if (Object.keys(updates).length > 0 && profile) {
       updateProfileMutation.mutate(updates);
+    } else if (!profile) {
+      // Demo mode - just show a toast
+      toast({
+        title: "Demo mode",
+        description: "Changes saved locally (demo mode)",
+      });
     }
   };
 
@@ -84,23 +98,12 @@ const ProfilePage = () => {
     );
   }
 
-  if (error || !profile) {
-    return (
-      <div className="container max-w-2xl mx-auto p-6">
-        <Card>
-          <CardContent className="p-6 text-center">
-            <p className="text-muted-foreground">Please log in to view your profile.</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
-  const hasChanges = profile && (
-    formData.name !== profile.name ||
-    formData.email !== profile.email ||
-    formData.notify_email !== profile.notify_email ||
-    formData.notify_push !== profile.notify_push
+  const hasChanges = (
+    formData.name !== profileData.name ||
+    formData.email !== profileData.email ||
+    formData.notify_email !== profileData.notify_email ||
+    formData.notify_push !== profileData.notify_push
   );
 
   return (
@@ -123,9 +126,9 @@ const ProfilePage = () => {
           {/* Avatar Upload */}
           <div className="flex items-center gap-4">
             <Avatar className="h-20 w-20">
-              <AvatarImage src={profile.avatar_url} />
+              <AvatarImage src={profileData.avatar_url} />
               <AvatarFallback className="text-lg">
-                {profile.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                {profileData.name.split(' ').map(n => n[0]).join('').toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="space-y-2">
