@@ -1,4 +1,3 @@
-import { setupWorker } from 'msw/browser';
-import { handlers } from './handlers';
+import { worker } from './boot';
 
-export const worker = setupWorker(...handlers);
+export { worker };
