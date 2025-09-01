@@ -1,44 +1,81 @@
 import { http, HttpResponse } from 'msw';
-import type { FeePageDTO, PaymentIntentDTO, FeeDTO } from '@/models/payments';
+import type { PaymentPageDTO, PaymentDTO, MemberDTO, FeePageDTO, FeeDTO, PaymentIntentDTO } from '@/models/payments';
 
-// Mock data
-const mockFees: FeeDTO[] = [
+// Mock data - payments with member information
+const mockMembers: MemberDTO[] = [
   {
-    id: 'fee-1',
+    id: 'member-1',
+    name: 'Anna Nielsen',
+    email: 'anna@example.com',
+    avatar: undefined,
+  },
+  {
+    id: 'member-2', 
+    name: 'Lars Pedersen',
+    email: 'lars@example.com',
+    avatar: undefined,
+  },
+  {
+    id: 'member-3',
+    name: 'Sofia Andersen',
+    email: 'sofia@example.com', 
+    avatar: undefined,
+  },
+  {
+    id: 'member-4',
+    name: 'Mikkel Jensen',
+    email: 'mikkel@example.com',
+    avatar: undefined,
+  },
+  {
+    id: 'member-5',
+    name: 'Emma Larsen',
+    email: 'emma@example.com',
+    avatar: undefined,
+  },
+];
+
+const mockPayments: PaymentDTO[] = [
+  {
+    id: 'payment-1',
     club_id: 1,
+    member: mockMembers[0],
     title: 'Monthly Membership Fee',
     amount_cents: 15000, // 150 DKK
     currency: 'DKK',
     due_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // Due in 7 days
-    status: 'unpaid',
+    status: 'pending',
     created_at: new Date().toISOString(),
     updated_at: null,
   },
   {
-    id: 'fee-2',
+    id: 'payment-2',
     club_id: 1,
+    member: mockMembers[1],
     title: 'Equipment Fund Contribution',
     amount_cents: 25000, // 250 DKK
     currency: 'DKK',
     due_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), // Due in 14 days
-    status: 'unpaid',
+    status: 'pending',
     created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // Created 2 days ago
     updated_at: null,
   },
   {
-    id: 'fee-3',
+    id: 'payment-3',
     club_id: 1,
+    member: mockMembers[2],
     title: 'Tournament Entry Fee',
     amount_cents: 30000, // 300 DKK
     currency: 'DKK',
     due_at: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), // Due in 3 days
-    status: 'unpaid',
+    status: 'failed',
     created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // Created 5 days ago
     updated_at: null,
   },
   {
-    id: 'fee-4',
+    id: 'payment-4',
     club_id: 1,
+    member: mockMembers[3],
     title: 'Annual Membership',
     amount_cents: 120000, // 1200 DKK
     currency: 'DKK',
@@ -48,8 +85,9 @@ const mockFees: FeeDTO[] = [
     updated_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // Updated 2 hours ago
   },
   {
-    id: 'fee-5',
+    id: 'payment-5',
     club_id: 1,
+    member: mockMembers[4],
     title: 'Training Camp Fee',
     amount_cents: 75000, // 750 DKK
     currency: 'DKK',
@@ -61,10 +99,114 @@ const mockFees: FeeDTO[] = [
 ];
 
 // In-memory store to track status changes
+let paymentsStore = [...mockPayments];
+
+// Mock fee data for backward compatibility
+const mockFees: FeeDTO[] = [
+  {
+    id: 'fee-1',
+    club_id: 1,
+    title: 'Monthly Membership Fee',
+    amount_cents: 15000,
+    currency: 'DKK',
+    due_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    status: 'unpaid',
+    created_at: new Date().toISOString(),
+    updated_at: null,
+  },
+  // Add other mock fees as needed
+];
+
 let feesStore = [...mockFees];
 
 export const paymentsHandlers = [
-  // GET /api/clubs/:id/fees - List fees for a club
+  // GET /api/payments - List payments (new endpoint)
+  http.get('/api/payments', ({ request }) => {
+    const url = new URL(request.url);
+    const cursor = url.searchParams.get('cursor');
+    const limit = Number(url.searchParams.get('limit')) || 50;
+    const status = url.searchParams.get('status');
+    const search = url.searchParams.get('search');
+    const dateFrom = url.searchParams.get('date_from');
+    const dateTo = url.searchParams.get('date_to');
+
+    let filteredPayments = [...paymentsStore];
+
+    // Apply filters
+    if (status && status !== 'all') {
+      filteredPayments = filteredPayments.filter(payment => payment.status === status);
+    }
+
+    if (search) {
+      const searchLower = search.toLowerCase();
+      filteredPayments = filteredPayments.filter(payment => 
+        payment.member.name.toLowerCase().includes(searchLower) ||
+        payment.member.email.toLowerCase().includes(searchLower)
+      );
+    }
+
+    if (dateFrom) {
+      const fromDate = new Date(dateFrom);
+      filteredPayments = filteredPayments.filter(payment => 
+        payment.due_at && new Date(payment.due_at) >= fromDate
+      );
+    }
+
+    if (dateTo) {
+      const toDate = new Date(dateTo);
+      filteredPayments = filteredPayments.filter(payment => 
+        payment.due_at && new Date(payment.due_at) <= toDate
+      );
+    }
+    
+    // Simple pagination
+    let startIndex = 0;
+    if (cursor) {
+      const cursorIndex = filteredPayments.findIndex(payment => String(payment.id) === cursor);
+      startIndex = cursorIndex > -1 ? cursorIndex + 1 : 0;
+    }
+    
+    const endIndex = Math.min(startIndex + limit, filteredPayments.length);
+    const items = filteredPayments.slice(startIndex, endIndex);
+    const nextCursor = endIndex < filteredPayments.length ? String(filteredPayments[endIndex].id) : null;
+
+    const response: PaymentPageDTO = {
+      items,
+      next_cursor: nextCursor,
+    };
+
+    return HttpResponse.json(response);
+  }),
+
+  // POST /api/payments/:id/send - Send payment link
+  http.post('/api/payments/:paymentId/send', async ({ params }) => {
+    const { paymentId } = params;
+    
+    // Find the payment and update its status to processing
+    const paymentIndex = paymentsStore.findIndex(payment => 
+      String(payment.id) === paymentId
+    );
+    
+    if (paymentIndex === -1) {
+      return HttpResponse.json(
+        { error: 'Payment not found' },
+        { status: 404 }
+      );
+    }
+
+    // Update payment status to processing
+    paymentsStore[paymentIndex] = {
+      ...paymentsStore[paymentIndex],
+      status: 'processing',
+      updated_at: new Date().toISOString(),
+    };
+
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    return HttpResponse.json({ success: true });
+  }),
+  // GET /api/clubs/:id/fees - List fees for a club (existing endpoint)
   http.get('/api/clubs/:clubId/fees', ({ params, request }) => {
     const clubId = Number(params.clubId);
     const url = new URL(request.url);
@@ -93,7 +235,7 @@ export const paymentsHandlers = [
     return HttpResponse.json(response);
   }),
 
-  // POST /api/clubs/:clubId/fees/:feeId/intent - Create payment intent
+  // POST /api/clubs/:clubId/fees/:feeId/intent - Create payment intent (existing endpoint)
   http.post('/api/clubs/:clubId/fees/:feeId/intent', async ({ params, request }) => {
     const { clubId, feeId } = params;
     const body = await request.json() as { client_id: string };

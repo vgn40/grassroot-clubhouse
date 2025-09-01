@@ -1,4 +1,24 @@
-export type FeeStatus = 'unpaid' | 'processing' | 'paid' | 'failed';
+export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'processing';
+
+export type Member = {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+};
+
+export type Payment = {
+  id: string;
+  clubId: number;
+  member: Member;
+  title: string;
+  amountCents: number;
+  currency: 'DKK' | 'EUR' | 'USD';
+  dueAt: string | null;
+  status: PaymentStatus;
+  createdAt: string;
+  updatedAt: string | null;
+};
 
 export type Fee = {
   id: string;
@@ -10,6 +30,13 @@ export type Fee = {
   status: FeeStatus;
   createdAt: string;
   updatedAt: string | null;
+};
+
+export type FeeStatus = 'unpaid' | 'processing' | 'paid' | 'failed';
+
+export type PaymentPage = { 
+  items: Payment[]; 
+  nextCursor?: string | null; 
 };
 
 export type FeePage = { 
@@ -24,6 +51,31 @@ export type PaymentIntent = {
 };
 
 // DTO types for API mapping (backend returns snake_case)
+export type MemberDTO = {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+};
+
+export type PaymentDTO = {
+  id: string | number;
+  club_id: number;
+  member: MemberDTO;
+  title: string;
+  amount_cents: number;
+  currency: 'DKK' | 'EUR' | 'USD';
+  due_at?: string | null;
+  status: PaymentStatus;
+  created_at: string;
+  updated_at?: string | null;
+};
+
+export type PaymentPageDTO = { 
+  items: PaymentDTO[]; 
+  next_cursor?: string | null; 
+};
+
 export type FeeDTO = {
   id: string | number;
   club_id: number;

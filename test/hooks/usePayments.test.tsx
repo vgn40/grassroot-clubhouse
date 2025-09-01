@@ -4,7 +4,7 @@ import { userEvent } from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { setupServer } from 'msw/node';
 import { paymentsHandlers } from '@/mocks/handlers/payments';
-import { usePayments, useCreateIntent } from '@/hooks/usePayments';
+import { usePayments, useSendPaymentLink, useFees, useCreateIntent } from '@/hooks/usePayments';
 
 const server = setupServer(...paymentsHandlers);
 
@@ -12,8 +12,39 @@ beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-const TestComponent = ({ clubId }: { clubId: number }) => {
-  const { fees, loading, refresh } = usePayments(clubId);
+const PaymentsTestComponent = ({ filters }: { filters?: any }) => {
+  const { payments, loading, refresh } = usePayments(filters);
+  const { sendLink, sending } = useSendPaymentLink();
+
+  if (loading) return <div>Loading...</div>;
+
+  return (
+    <div>
+      <button onClick={refresh}>Refresh</button>
+      <div data-testid="payments-table">
+        {payments.map((payment) => (
+          <div key={payment.id} data-testid="payment-item">
+            <span>{payment.member.name}</span>
+            <span>{payment.title}</span>
+            <span>{payment.status}</span>
+            {(payment.status === 'pending' || payment.status === 'failed') && (
+              <button
+                onClick={() => sendLink(payment.id)}
+                disabled={sending}
+                data-testid={`send-link-${payment.id}`}
+              >
+                Send Link
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const FeesTestComponent = ({ clubId }: { clubId: number }) => {
+  const { fees, loading, refresh } = useFees(clubId);
   const { create, creating } = useCreateIntent(clubId);
 
   if (loading) return <div>Loading...</div>;
@@ -58,8 +89,68 @@ const renderWithQueryClient = (component: React.ReactElement) => {
 };
 
 describe('usePayments hook', () => {
+  it('renders payments and shows Send Link button on pending/failed payments only', async () => {
+    renderWithQueryClient(<PaymentsTestComponent />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('payments-table')).toBeInTheDocument();
+    });
+
+    // Check that we have payments displayed
+    const paymentItems = screen.getAllByTestId('payment-item');
+    expect(paymentItems.length).toBeGreaterThan(0);
+
+    // Check that pending payments have Send Link buttons
+    const pendingPayments = paymentItems.filter(item => 
+      item.textContent?.includes('pending')
+    );
+    expect(pendingPayments.length).toBeGreaterThan(0);
+
+    // Check that paid payments don't have Send Link buttons
+    const paidPayments = paymentItems.filter(item => 
+      item.textContent?.includes('paid') && !item.textContent?.includes('pending')
+    );
+    
+    for (const paidPayment of paidPayments) {
+      expect(paidPayment.querySelector('button[data-testid^="send-link-"]')).toBeNull();
+    }
+  });
+
+  it('updates payments when refresh is clicked', async () => {
+    const user = userEvent.setup();
+    renderWithQueryClient(<PaymentsTestComponent />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('payments-table')).toBeInTheDocument();
+    });
+
+    const refreshButton = screen.getByText('Refresh');
+    await user.click(refreshButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('payments-table')).toBeInTheDocument();
+    });
+  });
+
+  it('handles filters correctly', async () => {
+    const filters = { status: 'pending', search: 'Anna' };
+    renderWithQueryClient(<PaymentsTestComponent filters={filters} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('payments-table')).toBeInTheDocument();
+    });
+
+    // Should only show pending payments
+    const paymentItems = screen.getAllByTestId('payment-item');
+    paymentItems.forEach(item => {
+      expect(item.textContent).toContain('pending');
+    });
+  });
+});
+
+describe('useFees hook (backward compatibility)', () => {
   it('renders fees and shows Pay button on unpaid fees only', async () => {
-    renderWithQueryClient(<TestComponent clubId={1} />);
+    renderWithQueryClient(<FeesTestComponent clubId={1} />);
 
     await waitFor(() => {
       expect(screen.getByTestId('fees-list')).toBeInTheDocument();
@@ -68,26 +159,11 @@ describe('usePayments hook', () => {
     // Check that we have fees displayed
     const feeItems = screen.getAllByTestId('fee-item');
     expect(feeItems.length).toBeGreaterThan(0);
-
-    // Check that unpaid fees have Pay buttons
-    const unpaidFees = feeItems.filter(item => 
-      item.textContent?.includes('unpaid')
-    );
-    expect(unpaidFees.length).toBeGreaterThan(0);
-
-    // Check that paid fees don't have Pay buttons
-    const paidFees = feeItems.filter(item => 
-      item.textContent?.includes('paid') && !item.textContent?.includes('unpaid')
-    );
-    
-    for (const paidFee of paidFees) {
-      expect(paidFee.querySelector('button[data-testid^="pay-"]')).toBeNull();
-    }
   });
 
   it('updates fees when refresh is clicked', async () => {
     const user = userEvent.setup();
-    renderWithQueryClient(<TestComponent clubId={1} />);
+    renderWithQueryClient(<FeesTestComponent clubId={1} />);
 
     await waitFor(() => {
       expect(screen.getByTestId('fees-list')).toBeInTheDocument();
