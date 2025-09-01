@@ -18,6 +18,24 @@ export default {
 			}
 		},
 		extend: {
+			backgroundImage: {
+				'gradient-hero': 'var(--gradient-hero)',
+				'gradient-warm': 'var(--gradient-warm)',
+				'gradient-soft': 'var(--gradient-soft)',
+				'gradient-match': 'var(--gradient-match)',
+				'gradient-training': 'var(--gradient-training)',
+				'gradient-social': 'var(--gradient-social)',
+				'gradient-payment': 'var(--gradient-payment)',
+				'gradient-success': 'var(--gradient-success)',
+				'gradient-pending': 'var(--gradient-pending)',
+				'gradient-failed': 'var(--gradient-failed)'
+			},
+			boxShadow: {
+				'warm': 'var(--shadow-warm)',
+				'glow': 'var(--shadow-glow)',
+				'card': 'var(--shadow-card)',
+				'floating': 'var(--shadow-floating)'
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -62,21 +80,18 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				activity: {
+					match: 'hsl(var(--activity-match))',
+					training: 'hsl(var(--activity-training))',
+					social: 'hsl(var(--activity-social))',
+					payment: 'hsl(var(--activity-payment))'
 				}
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
-			},
-			backgroundImage: {
-				'gradient-hero': 'var(--gradient-hero)',
-				'gradient-warm': 'var(--gradient-warm)',
-				'gradient-soft': 'var(--gradient-soft)'
-			},
-			boxShadow: {
-				'warm': 'var(--shadow-warm)',
-				'glow': 'var(--shadow-glow)'
 			},
 			keyframes: {
 				'accordion-down': {
@@ -110,7 +125,6 @@ export default {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.3s ease-out'
-			}
 		}
 	},
 	plugins: [require("tailwindcss-animate")],

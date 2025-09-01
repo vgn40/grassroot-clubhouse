@@ -3,14 +3,18 @@ import { Features } from "@/components/Features";
 import { Story } from "@/components/Story";
 import { CallToAction } from "@/components/CallToAction";
 
+import { AppLayout } from "@/components/Layout/AppLayout";
+
 const Index = () => {
   return (
-    <div className="min-h-screen">
-      <Hero />
-      <Features />
-      <Story />
-      <CallToAction />
-    </div>
+    <AppLayout>
+      <div className="min-h-screen">
+        <Hero />
+        <Features />
+        <Story />
+        <CallToAction />
+      </div>
+    </AppLayout>
   );
 };
 

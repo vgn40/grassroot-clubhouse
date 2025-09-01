@@ -38,14 +38,29 @@ All colors MUST be HSL.
     --input: 220 13% 91%;
     --ring: 220 70% 50%;
 
-    /* Modern minimal gradients */
+    /* Enhanced gradients for engaging design */
     --gradient-hero: linear-gradient(135deg, hsl(220 9% 15%), hsl(220 9% 25%));
     --gradient-warm: linear-gradient(135deg, hsl(0 0% 98%), hsl(220 14% 98%));
     --gradient-soft: linear-gradient(180deg, hsl(0 0% 100%), hsl(220 14% 98%));
+    --gradient-match: linear-gradient(135deg, hsl(220 70% 50%), hsl(240 60% 60%));
+    --gradient-training: linear-gradient(135deg, hsl(142 76% 36%), hsl(158 64% 52%));
+    --gradient-social: linear-gradient(135deg, hsl(262 83% 58%), hsl(280 71% 65%));
+    --gradient-payment: linear-gradient(135deg, hsl(33 100% 50%), hsl(45 93% 47%));
+    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(158 64% 52%));
+    --gradient-pending: linear-gradient(135deg, hsl(33 100% 50%), hsl(45 93% 47%));
+    --gradient-failed: linear-gradient(135deg, hsl(0 84% 60%), hsl(15 80% 65%));
 
-    /* Subtle modern shadows */
+    /* Enhanced shadows and glows */
     --shadow-warm: 0 8px 25px -8px hsl(220 9% 15% / 0.15);
     --shadow-glow: 0 0 30px hsl(220 70% 50% / 0.15);
+    --shadow-card: 0 4px 20px -4px hsl(220 9% 15% / 0.12);
+    --shadow-floating: 0 10px 40px -10px hsl(220 9% 15% / 0.25);
+
+    /* Activity colors */
+    --activity-match: 220 70% 50%;
+    --activity-training: 142 76% 36%;
+    --activity-social: 262 83% 58%;
+    --activity-payment: 33 100% 50%;
 
     --radius: 0.5rem;
 
@@ -118,5 +133,37 @@ All colors MUST be HSL.
 @layer components {
   .hover-scale {
     @apply transition-transform duration-200 hover:scale-105;
+  }
+
+  .hover-lift {
+    @apply transition-all duration-300 hover:shadow-floating hover:-translate-y-1;
+  }
+
+  .activity-card-match {
+    @apply bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200;
+  }
+
+  .activity-card-training {
+    @apply bg-gradient-to-br from-green-50 to-emerald-50 border-green-200;
+  }
+
+  .activity-card-social {
+    @apply bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200;
+  }
+
+  .rsvp-button-going {
+    @apply bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200;
+  }
+
+  .rsvp-button-maybe {
+    @apply bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200;
+  }
+
+  .rsvp-button-not-going {
+    @apply bg-gradient-to-r from-gray-400 to-slate-500 hover:from-gray-500 hover:to-slate-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200;
+  }
+
+  .chat-fab {
+    @apply fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full shadow-floating hover:shadow-glow transition-all duration-300 hover:scale-110 z-50;
   }
 }
