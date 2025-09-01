@@ -11,6 +11,7 @@ import ActivityDetailPage from "./pages/ActivityDetailPage";
 import ProfilePage from "./pages/ProfilePage";
 import ClubSettingsPage from "./pages/ClubSettingsPage";
 import PaymentsOverviewPage from "./pages/PaymentsOverviewPage";
+import ChatPage from "./pages/ChatPage";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/clubs/:id/settings" element={<ClubSettingsPage />} />
           <Route path="/payments" element={<PaymentsOverviewPage />} />
+          <Route path="/chat" element={<ChatPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

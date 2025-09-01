@@ -155,9 +155,6 @@ export const useCreateIntent = (clubId: number | undefined) => {
       return { previousData };
     },
     onSuccess: (data) => {
-      // Open checkout URL in new tab
-      window.open(data.checkoutUrl, '_blank', 'noopener');
-      
       toast({
         title: "Payment initiated",
         description: "Redirecting to payment provider...",
