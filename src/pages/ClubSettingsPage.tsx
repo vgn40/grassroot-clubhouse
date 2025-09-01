@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Settings, Palette, Users, Upload, Eye, Clock } from "lucide-react";
+import { AppLayout } from "@/components/Layout/AppLayout";
 import { toast } from "@/hooks/use-toast";
 
 const ClubSettingsPage = () => {
