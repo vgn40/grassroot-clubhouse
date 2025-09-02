@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -20,43 +20,48 @@ interface PayButtonProps {
 export function PayButton({ fee, clubId, className }: PayButtonProps) {
   const [showFallback, setShowFallback] = useState(false);
   const [checkoutUrl, setCheckoutUrl] = useState<string>('');
-  const { create, creating } = useCreateIntent(clubId);
+  const [popupRef, setPopupRef] = useState<Window | null>(null);
+  const { create, creating, data, isSuccess } = useCreateIntent(clubId);
 
   // Check if we're in backend mode (no MSW)
   const isBackendMode = !window.location.host.includes('lovable') || 
     import.meta.env.VITE_E2E_BACKEND === 'true';
 
+  // Handle successful payment intent creation
+  useEffect(() => {
+    if (isSuccess && data) {
+      if (!isBackendMode && popupRef) {
+        // Navigate popup to checkout URL
+        popupRef.location.href = data.checkoutUrl;
+      } else {
+        // In backend mode or popup blocked, show fallback dialog
+        setCheckoutUrl(data.checkoutUrl);
+        setShowFallback(true);
+      }
+    }
+  }, [isSuccess, data, popupRef, isBackendMode]);
+
   const handlePay = async () => {
     if (fee.status !== 'unpaid') return;
 
-    // In MSW mode, open popup immediately then navigate it
-    let popup: Window | null = null;
-    
-    try {
-      if (!isBackendMode) {
-        popup = window.open('about:blank', '_blank', 'width=600,height=800');
-        if (!popup) {
-          // Popup blocked, show fallback
-          setShowFallback(true);
-          return;
-        }
-      }
-
-      // Create payment intent using the mutation
-      create(fee.id);
-
-      // Note: The actual navigation will be handled by the mutation's onSuccess callback
-      // If in backend mode or popup is blocked, we'll show the fallback dialog
-      if (isBackendMode) {
-        // In backend mode, we'll show the fallback dialog with a mock URL
-        setCheckoutUrl(`https://checkout.stripe.test/intent/${fee.id}`);
+    // In MSW mode, open popup immediately
+    if (!isBackendMode) {
+      const popup = window.open('about:blank', '_blank', 'width=600,height=800');
+      setPopupRef(popup);
+      if (!popup) {
+        // Popup blocked, show fallback
         setShowFallback(true);
+        return;
       }
-    } catch (error) {
-      console.error('Payment failed:', error);
-      if (popup && !isBackendMode) {
-        popup.close();
-      }
+    }
+
+    // Create payment intent using the mutation
+    create(fee.id);
+
+    // In backend mode, show fallback immediately with mock URL
+    if (isBackendMode) {
+      setCheckoutUrl(`https://checkout.stripe.test/intent/${fee.id}`);
+      setShowFallback(true);
     }
   };
 

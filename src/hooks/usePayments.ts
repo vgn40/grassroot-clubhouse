@@ -181,5 +181,7 @@ export const useCreateIntent = (clubId: number | undefined) => {
   return {
     create: mutation.mutate,
     creating: mutation.isPending,
+    data: mutation.data,
+    isSuccess: mutation.isSuccess,
   };
 };

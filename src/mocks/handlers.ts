@@ -10,6 +10,31 @@ const mockProfile = {
   notify_push: false,
 };
 
+const mockFees = [
+  {
+    id: 'fee_1',
+    club_id: 1,
+    title: 'Monthly Club Fee',
+    amount_cents: 15000,
+    currency: 'DKK',
+    due_at: '2024-02-15T00:00:00Z',
+    status: 'unpaid',
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: null,
+  },
+  {
+    id: 'fee_2',
+    club_id: 1,
+    title: 'Match Fee - vs Eagles',
+    amount_cents: 5000,
+    currency: 'DKK',
+    due_at: '2024-02-10T00:00:00Z',
+    status: 'unpaid',
+    created_at: '2024-01-15T00:00:00Z',
+    updated_at: null,
+  },
+];
+
 const mockClubSettings = {
   id: 'tigers-fc',
   name: 'Tigers FC',
@@ -88,6 +113,25 @@ export const handlers = [
     // Return mock URL
     return HttpResponse.json({ 
       url: `https://images.unsplash.com/photo-1553778263-73a83bab9b0c?w=150&h=150&fit=crop&v=${Date.now()}`
+    });
+  }),
+
+  // Payments/Fees endpoints
+  http.get('/api/clubs/:clubId/fees', ({ params }) => {
+    return HttpResponse.json({
+      items: mockFees.filter(fee => fee.club_id === Number(params.clubId)),
+      next_cursor: null,
+    });
+  }),
+
+  http.post('/api/clubs/:clubId/fees/:feeId/intent', async ({ params }) => {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    return HttpResponse.json({
+      intent_id: `intent_${params.feeId}_${Date.now()}`,
+      provider: 'stripe',
+      checkout_url: `https://checkout.stripe.test/session/${params.feeId}`,
     });
   }),
 ];
