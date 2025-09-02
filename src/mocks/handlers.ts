@@ -134,4 +134,30 @@ export const handlers = [
       checkout_url: `https://checkout.stripe.test/session/${params.feeId}`,
     });
   }),
+
+  // Auth endpoints
+  http.post('/api/auth/login', async ({ request }) => {
+    const { email, password } = await request.json() as any;
+    
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // Mock authentication logic
+    if (email === 'test@example.com' && password === 'password') {
+      return HttpResponse.json({
+        token: 'test-token-123',
+        user: {
+          id: '1',
+          email: 'test@example.com',
+          name: 'Test User'
+        }
+      });
+    }
+    
+    // Invalid credentials
+    return HttpResponse.json(
+      { error: 'Invalid email or password' },
+      { status: 401 }
+    );
+  }),
 ];
