@@ -3,13 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { apiClient, secureStorage } from "@/lib/api";
 
-interface LoginCredentials {
+interface SignupCredentials {
+  name: string;
   email: string;
   password: string;
-  rememberMe?: boolean;
+  confirmPassword: string;
 }
 
-interface LoginResponse {
+interface SignupResponse {
   token: string;
   user?: {
     id: string;
@@ -18,18 +19,23 @@ interface LoginResponse {
   };
 }
 
-export const useLogin = () => {
+export const useSignup = () => {
   const navigate = useNavigate();
 
   const mutation = useMutation({
-    mutationFn: async (credentials: LoginCredentials): Promise<LoginResponse> => {
+    mutationFn: async (credentials: SignupCredentials): Promise<SignupResponse> => {
       try {
-        const response = await apiClient.post('/auth/login', credentials);
+        const { confirmPassword, ...signupData } = credentials;
+        const response = await apiClient.post('/auth/signup', signupData);
         return response;
       } catch (error: any) {
-        // Check if it's a 401 unauthorized error
-        if (error.message.includes('401')) {
-          throw new Error('Invalid email or password');
+        // Check if it's a 409 conflict error (email already exists)
+        if (error.message.includes('409')) {
+          throw new Error('An account with this email already exists');
+        }
+        // Check if it's a 422 validation error
+        if (error.message.includes('422')) {
+          throw new Error('Please check your information and try again');
         }
         throw error;
       }
@@ -40,8 +46,8 @@ export const useLogin = () => {
       
       // Show success toast
       toast({
-        title: "Welcome back!",
-        description: "You have been successfully signed in.",
+        title: "Account created!",
+        description: "Welcome to Fan Platform! Your account has been created successfully.",
       });
       
       // Navigate to home page
@@ -50,7 +56,7 @@ export const useLogin = () => {
     onError: (error: Error) => {
       // Show error toast
       toast({
-        title: "Sign in failed",
+        title: "Sign up failed",
         description: error.message,
         variant: "destructive",
       });
@@ -58,7 +64,7 @@ export const useLogin = () => {
   });
 
   return {
-    login: mutation.mutate,
+    signup: mutation.mutate,
     isLoading: mutation.isPending,
     error: mutation.error,
   };

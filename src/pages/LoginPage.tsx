@@ -5,12 +5,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, Mail } from 'lucide-react';
 import { useLogin } from '@/hooks/useLogin';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   
   const { login, isLoading } = useLogin();
@@ -39,7 +41,7 @@ export default function LoginPage() {
       return;
     }
     
-    login({ email: email.trim(), password });
+    login({ email: email.trim(), password, rememberMe });
   };
 
   const handleGoogleSignIn = () => {
@@ -48,8 +50,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
-      <div className="w-full max-w-md animate-fade-in">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md space-y-8 animate-fade-in">
         <Card className="rounded-2xl shadow-lg border-0 bg-card">
           <CardHeader className="text-center space-y-6 pt-8">
             {/* App Logo */}
@@ -132,6 +134,22 @@ export default function LoginPage() {
                     {errors.password}
                   </p>
                 )}
+              </div>
+
+              {/* Remember Me Checkbox */}
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="remember"
+                  checked={rememberMe}
+                  onCheckedChange={(checked) => setRememberMe(checked === true)}
+                  disabled={isLoading}
+                />
+                <Label 
+                  htmlFor="remember" 
+                  className="text-sm font-normal text-muted-foreground cursor-pointer"
+                >
+                  Remember me for 30 days
+                </Label>
               </div>
 
               {/* Sign In Button */}

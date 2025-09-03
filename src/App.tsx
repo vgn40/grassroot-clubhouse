@@ -13,6 +13,7 @@ import ClubSettingsPage from "./pages/ClubSettingsPage";
 import PaymentsOverviewPage from "./pages/PaymentsOverviewPage";
 import ChatPage from "./pages/ChatPage";
 import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
           <Route path="/payments" element={<PaymentsOverviewPage />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -160,4 +160,42 @@ export const handlers = [
       { status: 401 }
     );
   }),
+
+  // Sign up endpoint
+  http.post('/api/auth/signup', async ({ request }) => {
+    const body = await request.json() as { 
+      name: string; 
+      email: string; 
+      password: string; 
+    };
+
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    // Check for existing user (simulate database check)
+    if (body.email === 'existing@example.com') {
+      return HttpResponse.json(
+        { error: 'An account with this email already exists' },
+        { status: 409 }
+      );
+    }
+
+    // Validate required fields
+    if (!body.name || !body.email || !body.password) {
+      return HttpResponse.json(
+        { error: 'Please check your information and try again' },
+        { status: 422 }
+      );
+    }
+
+    // Simulate successful signup
+    return HttpResponse.json({
+      token: 'signup-token-456',
+      user: {
+        id: '2',
+        email: body.email,
+        name: body.name,
+      },
+    });
+  }),
 ];
