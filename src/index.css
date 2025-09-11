@@ -13,7 +13,12 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 220 70% 50%;
+    /* Fan Platform brand colors */
+    --brand-primary: 174 80% 25%; /* Teal #0F766E */
+    --brand-accent: 213 94% 68%; /* Royal blue #2563EB */
+    --brand-lime: 76 76% 44%; /* Lime #84CC16 */
+    
+    --primary: var(--brand-primary);
     --primary-foreground: 0 0% 100%;
 
     --secondary: 220 14% 96%;
@@ -22,7 +27,7 @@
     --muted: 220 14% 96%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 220 14% 96%;
+    --accent: var(--brand-lime);
     --accent-foreground: 220 9% 15%;
 
     --destructive: 0 84.2% 60.2%;
@@ -30,7 +35,7 @@
 
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 220 70% 50%;
+    --ring: var(--brand-primary);
 
     --radius: 0.5rem;
 
@@ -95,5 +100,29 @@
 @layer components {
   .hover-scale {
     @apply transition-transform duration-200 hover:scale-105;
+  }
+  
+  /* Fan Platform button styles */
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 
+           text-primary-foreground font-semibold rounded-lg transition-all duration-200 
+           hover:shadow-lg hover:shadow-primary/25 active:scale-[0.98];
+  }
+  
+  /* Error shake animation */
+  .error-shake {
+    animation: shake 0.3s ease-in-out;
+  }
+  
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-2px); }
+    40%, 80% { transform: translateX(2px); }
+  }
+  
+  /* Enhanced focus states */
+  .focus-enhanced {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary 
+           focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
 }
